@@ -15,6 +15,7 @@ mod routes;
 mod s3;
 mod structs;
 mod util;
+mod enums;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -23,15 +24,15 @@ async fn main() -> std::io::Result<()> {
     std::fs::create_dir_all("./tmp").unwrap();
 
     let config = util::generate_creds_struct();
-    println!("{:?}", config);
+    println!("{:?}", &config);
 
     let ip = "0.0.0.0:3000";
 
     let config = web::Data::new(util::generate_creds_struct());
 
-    HttpServer::new(|| {
+    HttpServer::new(move || {
         App::new()
-          //  .app_data(config.clone())
+            .app_data(config.clone())
             .wrap(middleware::Logger::default())
             .service(
             web::resource("/")
