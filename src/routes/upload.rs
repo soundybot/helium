@@ -29,13 +29,14 @@ pub async fn save_file(req: HttpRequest, mut payload: Multipart, config: web::Da
         helium_key: config.helium_key.to_string(),
         helium_s3_host: config.helium_s3_host.to_string(),
         helium_s3_acc_key: config.helium_s3_acc_key.to_string(),
-        helium_s3_sec_key: config.helium_s3_sec_key.to_string()
+        helium_s3_sec_key: config.helium_s3_sec_key.to_string(),
+        helium_s3_bucket: config.helium_s3_bucket.to_string(),
     };
 
     let perm_lvl = util::permissioncheck(&*match util::get_header(req, "helium_key") {
         Ok(value) => value,
         Err(response) => return Ok(response)
-    }, config);
+    }, &config);
     if !perm_lvl.eq(&PermissionLvl::ADMIN) {
         return Ok(build_perm_err(PermissionLvl::ADMIN, perm_lvl))
     };
@@ -63,12 +64,13 @@ pub async fn save_file(req: HttpRequest, mut payload: Multipart, config: web::Da
         //  f = web::block(move || f.write_all(&data).map(|_| f)).await?;
     }
 
-    let config = HeliumConfig {
+    /*let config = HeliumConfig {
         helium_key: "12345".to_string(),
         helium_s3_host: "http://fujitsu-server:9000".to_string(),
         helium_s3_acc_key: "minioadmin".to_string(),
         helium_s3_sec_key: "minioadmin".to_string(),
-    };
+        helium_s3_bucket: "".to_string()
+    };*/
 
     let file_ext = match util::get_extension_from_filename(&*filename) {
         Some(extension) => extension,

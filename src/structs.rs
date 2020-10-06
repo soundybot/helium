@@ -16,6 +16,7 @@ pub struct HeliumConfig {
     pub helium_s3_host: String,
     pub helium_s3_acc_key: String,
     pub helium_s3_sec_key: String,
+    pub helium_s3_bucket: String,
 
 }
 

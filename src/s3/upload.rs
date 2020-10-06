@@ -9,7 +9,7 @@ use std::io::Bytes;
 use std::convert::TryFrom;
 use actix_web::HttpResponse;
 use actix_web::web::Bytes as ActixBytes;
-use crate::util::read_file;
+use crate::util::{read_file, compile_public_url};
 use std::path::Path;
 use futures::Future;
 use std::pin::Pin;
@@ -25,10 +25,10 @@ pub async fn upload_to_s3(mut file_bytes: Vec<u8>, filename: String, content_typ
         name: "minio".into(),
         region: Region::Custom {
             region: "eu-central-1".into(),
-            endpoint: config.helium_s3_host.into(),
+            endpoint: (&*config.helium_s3_host).parse().unwrap(),
         },
         credentials: Credentials::new(Some(&*config.helium_s3_acc_key), Some(&*config.helium_s3_sec_key), None, None, None)?,
-        bucket: "rust-s3".to_string(),
+        bucket: config.helium_s3_bucket.to_owned(),
         location_supported: false,
     };
 
@@ -60,10 +60,11 @@ pub async fn upload_to_s3(mut file_bytes: Vec<u8>, filename: String, content_typ
 
         bucket.put_object_tagging(&*filename, &[("helium-uploaded", "true")]).await?;
         // let (tags, _status) = bucket.get_object_tagging(&*filename).await?;
+
     }
 
     let returnable = FileUploaded {
-        path: format!("{}", filename),
+        path: format!("{}", compile_public_url(config.helium_s3_host.to_owned(), config.helium_s3_bucket.to_owned(), filename.to_owned())),
         message: "File successfully uploaded!".to_string(),
     };
 
