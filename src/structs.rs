@@ -1,8 +1,10 @@
 use s3::region::Region;
 use serde::{Deserialize, Serialize};
 use s3::creds::Credentials as s3Credentials;
+use actix_web::HttpResponse;
 
 
+//TODO clarify naming scheme
 
 //Holder for all credencials and connection strings
 #[derive(Deserialize, Debug)]
@@ -26,6 +28,17 @@ pub struct defaultResponse {
 pub struct FileUploaded {
    pub path: String,
    pub message: String,
+}
+
+pub struct s3Uploaded {
+    pub response: HttpResponse,
+    pub path: String,
+}
+
+#[derive(Serialize)]
+pub struct DefaultReturn {
+    pub code: i32,
+    pub message: String,
 }
 
 
