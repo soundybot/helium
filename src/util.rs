@@ -178,3 +178,14 @@ pub fn build_perm_err(req_perm: PermissionLvl, real_perm: PermissionLvl) -> Http
 pub fn compile_public_url(host: String, bucket_name: String, file_name: String) -> String {
     format!("{host}/{bucket}/{file}", host = host, bucket = bucket_name, file = file_name)
 }
+
+//Get ownership of HeliumConfig struct
+pub fn get_config_ownership(config: &HeliumConfig) -> HeliumConfig {
+    HeliumConfig {
+        helium_key: config.helium_key.to_string(),
+        helium_s3_host: config.helium_s3_host.to_string(),
+        helium_s3_acc_key: config.helium_s3_acc_key.to_string(),
+        helium_s3_sec_key: config.helium_s3_sec_key.to_string(),
+        helium_s3_bucket: config.helium_s3_bucket.to_string(),
+    }
+}
