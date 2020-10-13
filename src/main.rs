@@ -1,5 +1,9 @@
 #![allow(unused_variables)]
+<<<<<<< HEAD
 #![allow(usued_imports)]
+=======
+#![allow(usued_import)]
+>>>>>>> dev
 
 use std::ffi::OsStr;
 use std::io::Write;
@@ -16,8 +20,11 @@ use uuid::Uuid;
 use crate::util::generate_creds_struct;
 use actix_web::error::ParseError::Header;
 use crate::structs::HeliumConfigWrapper;
+<<<<<<< HEAD
 use std::sync::RwLock;
 use config::Config;
+=======
+>>>>>>> dev
 
 mod routes;
 mod s3;
@@ -30,6 +37,11 @@ mod enums;
 const API_VERSION: &str = "v1";
 const HELIUM_VERSION: &str = "0.2.0";
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> dev
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "actix_server=info,actix_web=info");
@@ -50,6 +62,17 @@ async fn main() -> std::io::Result<()> {
     let config = web::Data::new(config);
 
 
+<<<<<<< HEAD
+=======
+    let config = HeliumConfigWrapper {
+        config,
+        api_version: API_VERSION.to_string(),
+        version: HELIUM_VERSION.to_string()
+    };
+    let config = web::Data::new(config);
+
+
+>>>>>>> dev
 
     HttpServer::new(move || {
         App::new()
@@ -58,7 +81,11 @@ async fn main() -> std::io::Result<()> {
             //upload file
             .service(
                 web::resource("/")
+<<<<<<< HEAD
                     .route(web::post().to(routes::upload::save_file))
+=======
+                    .route(web::get().to(routes::upload::save_file))
+>>>>>>> dev
                     .route(web::delete().to(routes::delete::delete_file))
             )
             .service(
