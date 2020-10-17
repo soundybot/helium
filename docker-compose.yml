@@ -4,6 +4,7 @@ services:
   helium:
     image: helium
     container_name: helium
+    restart: always
     depends_on:
       - minio
     environment:
