@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+  helium:
+    image: helium
+    container_name: helium
+    depends_on:
+      - minio
+    environment:
+      helium_key: YOURKEYHERE
+      helium_s3_bucket: helium
+      helium_s3_host: http://minio:9000
+      helium_s3_acc_key: minio
+      helium_s3_sec_key: CHANGETHIS
+    ports:
+      - "3000:3000"
+      
+  minio:
+    image: minio/minio
+    container_name: minio
+    command: server /data
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: CHANGETHIS
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./miniodata:/data
