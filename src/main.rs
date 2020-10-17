@@ -52,8 +52,8 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
             //upload file
             .service(
-                web::resource("/")
-                    .route(web::get().to(routes::upload::save_file))
+                web::resource("/file")
+                    .route(web::post().to(routes::upload::save_file))
                     .route(web::delete().to(routes::delete::delete_file)),
             )
             .service(web::resource("/api").route(web::get().to(routes::info::info)))
