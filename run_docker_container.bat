@@ -1,1 +1,1 @@
-docker run -e helium_key=123456 -e helium_s3_bucket=rust_s3 -e helium_s3_host=192.168.178.63:9000 -e helium_s3_acc_key=minioadmin -e helium_s3_sec_key=minioadmin -p 3000:3000 -p 9000:9000 helium
+docker run -e helium_key=123456 -e helium_s3_bucket=rust_s3 -e helium_s3_host=192.168.178.63:9000 -e helium_s3_acc_key=minioadmin -e helium_s3_sec_key=minioadmin -p 3000:3000 helium
