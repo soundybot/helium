@@ -31,12 +31,10 @@ const HELIUM_VERSION: &str = "0.2.0";
 async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "actix_server=info,actix_web=info");
 
-    std::fs::create_dir_all("./tmp").unwrap();
-
     let config = util::generate_creds_struct();
     println!("{:?}", &config);
 
-    let ip = "0.0.0.0:3000";
+    let ip = "0.0.0.0:8080";
     println!("Listening on {}", ip);
 
     let config = HeliumConfigWrapper {

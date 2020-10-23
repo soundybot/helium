@@ -18,15 +18,21 @@ pub async fn upload_to_s3(file_bytes: Vec<u8>, filename: String, content_type: &
         let bucket = Bucket::new_with_path_style(&backend.bucket, backend.region, backend.credentials)?;
 
 
-        let (_, code) = bucket.put_object_with_content_type(&*filename, &file_bytes, content_type).await?;
+        let (_, code) = match bucket.put_object_with_content_type(&*filename, &file_bytes, content_type).await {
+            Ok(a) => a,
+            Err(err) => return Ok(HttpResponse::InternalServerError().body(Body::from(format!("an error occurred while uploading the file! \n {:?}", err))))
+        };
 
         assert_eq!(200, code);
 
-        let (data, code) = bucket.get_object(&*filename).await?;
-        if !(file_bytes == data) {};
-        assert_eq!(200, code);
+        //let (data, code) = bucket.get_object(&*filename).await?;
+        //if !(file_bytes == data) {};
+        //assert_eq!(200, code);
 
-        bucket.put_object_tagging(&*filename, &[("helium-uploaded", "true")]).await?;
+        match bucket.put_object_tagging(&*filename, &[("helium-uploaded", "true")]).await {
+            Ok(a) => a,
+            Err(err) => return Ok(HttpResponse::InternalServerError().body(Body::from(format!("an error occurred while uploading the file! \n {:?}", err))))
+        };
 
     }
 
@@ -38,6 +44,6 @@ pub async fn upload_to_s3(file_bytes: Vec<u8>, filename: String, content_type: &
 
     Ok(HttpResponse::Ok().header("content-type", "application/json").body(Body::from(match serde_json::to_string(&returnable) {
         Ok(result) => result,
-        Err(_) => "An error occured while parsing the response!".to_string()
+        Err(_) => "An error occurred while parsing the response!".to_string()
     })))
 }

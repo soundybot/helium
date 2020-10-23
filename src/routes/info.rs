@@ -36,5 +36,5 @@ pub async fn info(req: HttpRequest, config: web::Data<HeliumConfigWrapper>) -> H
     };
 
 
-    HttpResponse::Ok().content_type("application/json").body(match serde_json::to_string(&returnable) {Ok(string) => string, Err(err) => format!("an error occured while trying to parse the application information: {:?}", err)})
+    HttpResponse::Ok().content_type("application/json").body(match serde_json::to_string(&returnable) {Ok(string) => string, Err(err) => format!("an error occurred while trying to parse the application information: {:?}", err)})
 }

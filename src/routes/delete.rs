@@ -1,4 +1,5 @@
 #[allow(unused_variables)]
+#[allow(duplicate_code)]
 
 use std::ffi::OsStr;
 use std::io::Write;
