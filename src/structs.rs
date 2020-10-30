@@ -27,7 +27,7 @@ pub struct HeliumConfigWrapper {
 }
 
 #[derive(Serialize)]
-pub struct defaultResponse {
+pub struct DefaultResponse {
     pub message: String,
 }
 
@@ -67,4 +67,13 @@ pub struct S3Storage {
 #[derive(Deserialize, Debug)]
 pub struct DeleteFile {
     pub path: String,
+}
+
+pub struct S3DownloadResult {
+    pub data: Vec<u8>,
+    pub content_type: String,
+}
+
+pub struct S3DownloadError {
+    pub message: String,
 }

@@ -22,3 +22,10 @@ impl std::fmt::Display for PermissionLvl {
         }
     }
 }
+
+
+pub enum S3DownloadError {
+    NotFound,
+    AccessDenied,
+    Other(String)
+}

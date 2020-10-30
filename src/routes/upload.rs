@@ -40,7 +40,7 @@ pub async fn save_file(
         },
         Err(_) => {
             return Ok(HttpResponse::BadRequest()
-                .body(Body::from("Invalid file. Was the file renamed or deleted?")))
+                .body(Body::from("Invalid file. Was the file renamed or deleted?")));
         }
     };
     let content_type = field.content_disposition().unwrap();
@@ -67,7 +67,7 @@ pub async fn save_file(
         config,
         tags,
     )
-    .await
+        .await
     {
         Ok(returnable) => returnable,
         Err(err) => HttpResponse::InternalServerError().body(Body::from(format!(

@@ -4,17 +4,17 @@ services:
   helium:
     image: helium
     container_name: helium
-    restart: always
+    restart: on-failure
     depends_on:
       - minio
     environment:
-      helium_key: YOURKEYHERE
+      helium_key: 123456
       helium_s3_bucket: helium
       helium_s3_host: http://minio:9000
       helium_s3_acc_key: minio
       helium_s3_sec_key: CHANGETHIS
     ports:
-      - "3000:3000"
+      - "8080:8080"
       
   minio:
     image: minio/minio

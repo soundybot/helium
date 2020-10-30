@@ -54,6 +54,7 @@ async fn main() -> std::io::Result<()> {
                     .route(web::post().to(routes::upload::save_file))
                     .route(web::delete().to(routes::delete::delete_file)),
             )
+            .service(web::resource("/file/{path}").route(web::get().to(routes::fetch::fetch)))
             .service(web::resource("/api").route(web::get().to(routes::info::info)))
     })
     .bind(ip)?
