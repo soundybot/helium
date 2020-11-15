@@ -15,9 +15,12 @@ pub async fn save_file(
     mut payload: Multipart,
     config: web::Data<HeliumConfigWrapper>,
 ) -> Result<HttpResponse, Error> {
+    println!("saving started...");
     let config = util::get_config_ownership(&config.config);
 
     let tags = get_default_tags();
+
+    println!("2");
 
     let perm_lvl = util::permissioncheck(
         &*match util::get_header(req, "helium_key") {
@@ -29,6 +32,8 @@ pub async fn save_file(
     if !perm_lvl.eq(&PermissionLvl::ADMIN) {
         return Ok(build_perm_err(PermissionLvl::ADMIN, perm_lvl));
     };
+
+    println!("extracting payload");
 
     let mut field = match payload.try_next().await {
         Ok(field) => match field {
@@ -43,23 +48,25 @@ pub async fn save_file(
                 .body(Body::from("Invalid file. Was the file renamed or deleted?")));
         }
     };
+    println!("3");
     let content_type = field.content_disposition().unwrap();
     let filename = content_type.get_filename().unwrap();
     let filename = util::rewrite_filename(filename).clone();
 
     let mut data_arr = Vec::new();
 
+    println!("4");
     // Field in turn is stream of *Bytes* object
     while let Some(chunk) = field.next().await {
         let data: actix_web::web::Bytes = chunk.unwrap();
         data_arr.append(&mut data.to_vec());
     }
-
+    println!("5");
     let file_ext = match util::get_extension_from_filename(&*filename) {
         Some(extension) => extension,
         None => "",
     };
-
+    println!("6");
     let returnable = match upload_to_s3(
         data_arr,
         (&filename).to_string(),
@@ -75,6 +82,6 @@ pub async fn save_file(
             err
         ))),
     };
-
+    println!("7");
     Ok(returnable)
 }
