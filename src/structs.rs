@@ -1,6 +1,4 @@
-use s3::region::Region;
 use serde::{Deserialize, Serialize};
-use s3::creds::Credentials as s3Credentials;
 use actix_web::HttpResponse;
 
 

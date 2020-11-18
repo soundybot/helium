@@ -12,17 +12,14 @@ use actix_web::error::PayloadError::Http2Payload;
 use actix_web::http::StatusCode;
 use actix_web::web::Bytes;
 use futures::{FutureExt, StreamExt, TryStreamExt};
-use s3::bucket::Bucket;
-use s3::S3Error;
 use uuid::Uuid;
 
 use crate::enums::PermissionLvl;
-use crate::s3::upload::upload_to_s3;
-use crate::s3::util::build_config_struct;
 use crate::structs::{DefaultReturn, DeleteFile, FileUploaded, HeliumConfig, HeliumConfigWrapper};
 use crate::util;
 use crate::util::{build_perm_err, compile_public_url};
-
+use rusoto_s3::Bucket;
+/*
 pub async fn delete_file(req: HttpRequest, config: web::Data<HeliumConfigWrapper>, path: web::Json<DeleteFile>) -> Result<HttpResponse, Error> {
     let config = util::get_config_ownership(&config.config);
 
@@ -69,4 +66,4 @@ pub async fn delete_file(req: HttpRequest, config: web::Data<HeliumConfigWrapper
     }
 
     Ok(HttpResponse::NoContent().body(format!("File {} has successfully been deleted!", &path.path)))
-}
+}*/

@@ -1,7 +1,6 @@
 use actix_web::{HttpRequest, web, HttpResponse};
 use crate::structs::{DefaultResponse, HeliumConfigWrapper};
 use actix_web::body::Body;
-use crate::s3::download::download_from_s3;
 use crate::enums::S3DownloadError;
 use crate::util;
 

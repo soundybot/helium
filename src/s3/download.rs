@@ -1,13 +1,14 @@
-use crate::s3::util::build_config_struct;
-use s3::bucket::Bucket;
+use crate::s3::util::{ build_s3client};
 use actix_web::HttpResponse;
 use crate::structs::{HeliumConfig, S3DownloadResult};
 use std::collections::HashMap;
-use s3::S3Error;
 use std::borrow::Borrow;
-use crate::enums::S3DownloadError as S3DownloadErrorEnum;
+use crate::enums::{S3DownloadError as S3DownloadErrorEnum, S3DownloadError};
+use rusoto_s3::{S3, GetObjectRequest};
+use crate::enums::S3DownloadError::{Other, NotFound};
 
-pub async fn download_from_s3(filepath: String, config: HeliumConfig) -> Result<Result<S3DownloadResult, S3DownloadErrorEnum>, S3Error> {
+/*
+pub async fn download_from_s3(filepath: String, config: HeliumConfig) -> Result<Result<S3DownloadResult, S3DownloadErrorEnum>, String> {
 
     let helium_s3 = build_config_struct(config.borrow())?;
         // Create Bucket in REGION for BUCKET
@@ -29,4 +30,18 @@ pub async fn download_from_s3(filepath: String, config: HeliumConfig) -> Result<
         content_type: filetype.to_string()
     };
     Ok(Ok(returnable))
+}*/
+
+
+pub async fn download_s3(filepath: String, config: HeliumConfig) -> Result<S3DownloadResult, S3DownloadErrorEnum> {
+    let client = build_s3client(&config);
+    let request = GetObjectRequest {
+        bucket: config.helium_s3_bucket,
+        key: filepath,
+        ..Default::default()
+    };
+    let object = match client.get_object(request).await {
+        Ok(obj) => obj,
+        Err(err) => return Err(S3DownloadError(NotFound(*err)))
+    };
 }

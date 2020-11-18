@@ -5,9 +5,6 @@ use std::ffi::OsStr;
 use std::io::Write;
 use std::path::Path;
 
-use ::s3::bucket::Bucket;
-use ::s3::creds::{AwsCredsError, Credentials};
-use ::s3::region::Region;
 use actix_multipart::Multipart;
 use actix_web::{middleware, web, App, Error, HttpResponse, HttpServer};
 use futures::{StreamExt, TryStreamExt};
@@ -16,6 +13,8 @@ use uuid::Uuid;
 use crate::structs::HeliumConfigWrapper;
 use crate::util::generate_creds_struct;
 use actix_web::error::ParseError::Header;
+use crate::s3::util::{create_bucket, get_region};
+use rusoto_core::Region;
 
 mod enums;
 mod routes;
@@ -34,15 +33,30 @@ async fn main() -> std::io::Result<()> {
     let config = util::generate_creds_struct();
     println!("{:?}", &config);
 
+
+    //create bucket if not exists
+    create_bucket(&config, get_region(&config));
+
+
     let ip = "0.0.0.0:8080";
     println!("Listening on {}", ip);
 
-    let config = HeliumConfigWrapper {
+    let config_wrapper = HeliumConfigWrapper {
         config,
         api_version: API_VERSION.to_string(),
         version: HELIUM_VERSION.to_string(),
     };
-    let config = web::Data::new(config);
+
+
+
+
+
+
+
+
+    let config = web::Data::new(config_wrapper);
+
+
 
     HttpServer::new(move || {
         App::new()

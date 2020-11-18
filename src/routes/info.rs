@@ -9,14 +9,10 @@ use actix_web::error::PayloadError::Http2Payload;
 use actix_web::http::StatusCode;
 use actix_web::web::Bytes;
 use futures::{FutureExt, StreamExt, TryStreamExt, Stream};
-use s3::bucket::Bucket;
-use s3::S3Error;
 use uuid::Uuid;
 use serde::Serialize;
 
 use crate::enums::PermissionLvl;
-use crate::s3::upload::upload_to_s3;
-use crate::s3::util::build_config_struct;
 use crate::structs::{DefaultReturn, DeleteFile, FileUploaded, HeliumConfig, HeliumConfigWrapper};
 use crate::util;
 use crate::util::{build_perm_err, compile_public_url};

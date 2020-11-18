@@ -1,4 +1,5 @@
 use serde::export::Formatter;
+use rusoto_s3::GetObjectError;
 
 pub enum PermissionLvl {
     ADMIN,
@@ -25,7 +26,7 @@ impl std::fmt::Display for PermissionLvl {
 
 
 pub enum S3DownloadError {
-    NotFound,
-    AccessDenied,
+    NotFound(GetObjectError),
+    AccessDenied(GetObjectError),
     Other(String)
 }
