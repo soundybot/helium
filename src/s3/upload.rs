@@ -1,76 +1,54 @@
-use std::fs::File;
-use s3::region::Region;
-use s3::creds::Credentials;
-use s3::bucket::Bucket;
-use crate::structs::{S3Storage, HeliumConfig, FileUploaded};
-use s3::S3Error;
-use std::io::Read;
-use std::io::Bytes;
-use std::convert::TryFrom;
+use crate::s3::util::build_config_struct;
+use crate::structs::{FileUploaded, HeliumConfig, S3Storage};
+use crate::util::{compile_public_url, read_file};
+use std::collections::HashMap;
 use actix_web::HttpResponse;
-use actix_web::web::Bytes as ActixBytes;
-use crate::util::read_file;
-use std::path::Path;
-use futures::Future;
-use std::pin::Pin;
-use futures::task::{Context, Poll};
+use s3::S3Error;
+use std::borrow::Borrow;
+use s3::bucket::Bucket;
 use actix_web::body::Body;
-use serde_json::Error;
 
+pub async fn upload_to_s3(file_bytes: Vec<u8>, filename: String, content_type: &str, config: HeliumConfig, tags: HashMap<String, String>) -> Result<HttpResponse, S3Error> {
+    println!("starting upload...");
 
-pub async fn upload_to_s3(mut file_bytes: Vec<u8>, filename: String, content_type: &str, config: HeliumConfig) -> Result<HttpResponse, S3Error> {
+    let helium_s3 = build_config_struct(config.borrow())?;
 
-    // let mut file: File = File::open(&path)?;
-    let minio = S3Storage {
-        name: "minio".into(),
-        region: Region::Custom {
-            region: "eu-central-1".into(),
-            endpoint: config.helium_s3_host.into(),
-        },
-        credentials: Credentials::new(Some(&*config.helium_s3_acc_key), Some(&*config.helium_s3_sec_key), None, None, None)?,
-        bucket: "rust-s3".to_string(),
-        location_supported: false,
-    };
-
-    for backend in vec![minio] {
+    for backend in vec![helium_s3] {
+        println!("before bucket creation");
         // Create Bucket in REGION for BUCKET
         let bucket = Bucket::new_with_path_style(&backend.bucket, backend.region, backend.credentials)?;
 
+        println!("after bucket creation");
+        println!("content-type: {content} \n filename: {filename} \n config: {config:?}", content=content_type, filename=filename, config=config);
 
-        // let mut file_bytes = Vec::new();
+        let (_, code) = match bucket.put_object_with_content_type(&*filename, &file_bytes, content_type).await {
+            Ok(a) => a,
+            Err(err) => { println!("error while uploading: \n{:?}", err);
+            return Ok(HttpResponse::InternalServerError().body(Body::from(format!("an error occurred while uploading the file! \n {:?}", err))))}
+        };
+        println!("after upload");
 
-        //file.read_to_end(&mut file_bytes).unwrap();
-
-        let (_, code) = bucket.put_object_with_content_type(&*filename, &file_bytes, content_type).await?;
-
-        // println!("{}", bucket.presign_get("test_file", 604801)?);
+        println!("return code is {}", code);
         assert_eq!(200, code);
 
-        // Get the "test_file" contents and make sure that the returned message
-        // matches what we sent.
-        let (data, code) = bucket.get_object(&*filename).await?;
-        if !(file_bytes == data) {};
-        assert_eq!(200, code);
+        println!("start tagging object");
 
-
-        /* if backend.location_supported {
-             // Get bucket location
-             println!("{:?}", bucket.location().await?);
-         }*/
-
-        bucket.put_object_tagging(&*filename, &[("helium-uploaded", "true")]).await?;
-        // let (tags, _status) = bucket.get_object_tagging(&*filename).await?;
+        match bucket.put_object_tagging(&*filename, &[("helium-uploaded", "true")]).await {
+            Ok(a) => a,
+            Err(err) => return Ok(HttpResponse::InternalServerError().body(Body::from(format!("an error occurred while uploading the file! \n {:?}", err))))
+        };
+        println!("after tagging object");
     }
 
+    println!("creating response msg");
     let returnable = FileUploaded {
-        path: format!("{}", filename),
+        path: format!("{}", compile_public_url(config.helium_s3_host.to_owned(), config.helium_s3_bucket.to_owned(), filename.to_owned())),
         message: "File successfully uploaded!".to_string(),
     };
 
-
-    Ok(HttpResponse::Ok().header("content-type", "application/json").body(Body::from(match serde_json::to_string(&returnable) {
+    println!("returning response");
+        Ok(HttpResponse::Ok().header("content-type", "application/json").body(Body::from(match serde_json::to_string(&returnable){
         Ok(result) => result,
-        Err(_) => "An error occured while parsing the response!".to_string()
+        Err(_) => "An error occurred while parsing the response!".to_string()
     })))
 }
-

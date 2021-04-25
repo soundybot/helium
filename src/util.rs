@@ -65,6 +65,7 @@ fn alert_env_not_found(err: Error) -> HeliumConfig {
         helium_s3_host: "".to_string(),
         helium_s3_acc_key: "".to_string(),
         helium_s3_sec_key: "".to_string(),
+        helium_s3_bucket: "".to_string()
     }
 }
 
@@ -128,7 +129,7 @@ pub fn get_content_type(file_ext: &str) -> &'static str {
     }
 }
 
-pub fn permissioncheck(input: &str, helium_config: HeliumConfig) -> PermissionLvl {
+pub fn permissioncheck(input: &str, helium_config: &HeliumConfig) -> PermissionLvl {
     if input == helium_config.helium_key.as_str() {
         return PermissionLvl::ADMIN;
     };
@@ -172,4 +173,19 @@ pub fn build_perm_err(req_perm: PermissionLvl, real_perm: PermissionLvl) -> Http
         Ok(perm_error) => perm_error,
         Err(_) => return HttpResponse::InternalServerError().content_type("text/plain").body(Body::from("An error occured while parsing the permission error response!"))
     }))
+}
+
+pub fn compile_public_url(host: String, bucket_name: String, file_name: String) -> String {
+    format!("{host}/{bucket}/{file}", host = host, bucket = bucket_name, file = file_name)
+}
+
+//Get ownership of HeliumConfig struct
+pub fn get_config_ownership(config: &HeliumConfig) -> HeliumConfig {
+    HeliumConfig {
+        helium_key: config.helium_key.to_string(),
+        helium_s3_host: config.helium_s3_host.to_string(),
+        helium_s3_acc_key: config.helium_s3_acc_key.to_string(),
+        helium_s3_sec_key: config.helium_s3_sec_key.to_string(),
+        helium_s3_bucket: config.helium_s3_bucket.to_string(),
+    }
 }
